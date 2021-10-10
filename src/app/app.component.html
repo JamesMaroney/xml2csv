@@ -1,0 +1,117 @@
+<header>
+  <h1>XML2CSV</h1>
+</header>
+<section class="intro">
+  <p>
+    This tool helps convert a bunch of XML files with a common schema
+    (from SalesForce exports, for example) to a single spreadsheet.
+  </p>
+  <p>
+    Note: Security and confidentiality is important in
+    this world, and this data is YOUR data. To that effect,
+    <b>No Data leaves your computer</b> with this tool. All the work is
+    done in your browser, and nothing is stored aside from you saving
+    the final spreadsheet locally.
+  </p>
+</section>
+<main>
+  <section>
+    <h2>Step 1: Load Files</h2>
+
+    <button (click)="selectFile()">Import XML files</button>
+    <input #fileInput type="file" accept="application/xml"
+           multiple directory webkitdirectory mozdirectory
+           (change)="filesSelected($event)" />
+
+    <ng-container *ngIf="(filesUploading$ | async)">
+      <p>
+        Loading files. This could take a minute if there are lots of files.
+      </p>
+      <div class="loader"></div>
+    </ng-container>
+
+    <ng-container *ngIf="!(filesUploading$ | async) && (files$ | async) as files">
+      <span *ngIf="files?.length">
+        {{files?.length?.toLocaleString()}} files loaded
+      </span>
+
+      <ul>
+        <li *ngFor="let file of (files$ | async); trackBy trackByFilename">{{file.name}}</li>
+      </ul>
+    </ng-container>
+  </section>
+
+  <section [attr.disabled]="!(hasLoadedDataPoints$ | async)">
+    <h2>Step 2: Select Data Points</h2>
+
+    <ng-container *ngIf="hasLoadedDataPoints$ | async">
+      <app-selector label="data points"
+                    [items]="loadedDataPoints$ | async"
+                    [itemTrackBy]="trackByDataPoint"
+                    [itemLabel]="getDataPointName"
+                    [isItemSelected]="isDataPointEnabled"
+                    (changeSelection)="onChangeDataPointSelection($event)"
+                    (addItem)="onAddDataPoint($event)" >
+      </app-selector>
+    </ng-container>
+
+  </section>
+
+  <section [attr.disabled]="!(hasEnabledDataPoints$ | async)">
+    <h2>Step 3: Filter Rows</h2>
+
+    <ng-container *ngIf="hasEnabledDataPoints$ | async">
+      <div>
+        <label>Filter By Data Point: </label>
+        <select (change)="onChangeFilterBy($event)">
+          <option value="">none</option>
+          <option *ngFor="let dataPoint of (enabledDataPoints$ | async); trackBy trackByDataPoint"
+                  [value]="dataPoint.id">
+            {{dataPoint.displayName}}
+          </option>
+        </select>
+      </div>
+      <ng-container *ngIf="filterByDataPoint$ | async">
+        <input #filterInput type="text"
+               placeholder="paste filter values here"
+               (paste)="onPasteFilters($event)" />
+        <ng-container *ngIf="(filterValues$ | async) as filterValues">
+          <span>{{filterValues?.size}} filters imported</span>
+          <ul>
+            <li *ngFor="let filterValue of (filterValues$ | async)!.values(); trackBy trackByStringValue">{{filterValue}}</li>
+          </ul>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </section>
+
+  <section [attr.disabled]="!(hasEnabledDataPoints$ | async)">
+    <h2>Step 4: Download Sheet</h2>
+
+    <ng-container *ngIf="hasEnabledDataPoints$ | async">
+      <button (click)="generateSheet()">Generate Sheet</button>
+
+      <ng-container *ngIf="(sheetGenerationReport$ | async) as report">
+        <ng-container *ngIf="report?.unmatchedFilterValues?.length; else allFiltersMatched">
+          <span>{{report?.unmatchedFilterValues?.length}} filter values not matched!</span>
+          <ul>
+            <li *ngFor="let filterValue of report?.unmatchedFilterValues; trackBy trackByStringValue">{{filterValue}}</li>
+          </ul>
+        </ng-container>
+        <ng-template #allFiltersMatched>
+          <span>All filter values matched!</span>
+        </ng-template>
+      </ng-container>
+
+      <ng-container *ngIf="(sheetGenerating$ | async)">
+        <p>
+          Building Spreadsheet. Go make an espresso - this could take a few minutes!
+        </p>
+        <p *ngIf="(sheetGeneratingStatus$ | async) as status">
+          {{status}}
+        </p>
+        <div class="loader"></div>
+      </ng-container>
+    </ng-container>
+  </section>
+</main>

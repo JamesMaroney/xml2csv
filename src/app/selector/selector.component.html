@@ -1,0 +1,30 @@
+<div class="count">
+  {{ selectedItems.length }} of {{ items?.length || 0 }} {{label}} selected
+</div>
+
+<!--
+<div class="buttons">
+  <button (click)="includeAll()">include all</button>
+  <button (click)="excludeAll()">exclude all</button>
+</div>
+-->
+
+<input #filterInput type="search" placeholder="search"
+       (search)="onFilterChange()"
+       (keyup)="onFilterChange()" />
+
+<ul>
+  <li *ngIf="filterTerm && !exactFilterMatch" class="to-add">
+    <span>{{filterTerm}}</span>
+    <button (click)="onClickAddItem()">add</button>
+  </li>
+  <li *ngFor="let item of filteredItems; index as i; trackBy: itemTrackBy">
+    <label>
+      <input type="checkbox"
+             [checked]="isItemSelected(item)"
+             (change)="toggleItem(item, $event)" />
+      {{itemLabel(item)}}
+    </label>
+  </li>
+</ul>
+

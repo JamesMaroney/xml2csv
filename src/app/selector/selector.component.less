@@ -1,0 +1,46 @@
+:host{
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex: 1;
+  height: 0;
+}
+
+.count {
+  cursor: default;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+input[type='search'] {
+  width: 100%;
+  margin: .25em 0;
+}
+
+ul {
+  flex: 1;
+  overflow: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+li {
+  margin: 0;
+  padding: 0;
+}
+
+li.to-add {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: center;
+  padding: .25em;
+  border-bottom: 1px dotted gray;
+}
+
+
