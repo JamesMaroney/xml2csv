@@ -83,14 +83,11 @@ export const extractDataPoints = (document: Document): DataPointMap => {
 }
 
 const getDataPointValue = (doc: Document, dataPoint: DataPoint) => {
-  if(dataPoint.rootNode) return doc.getRootNode()?.childNodes[0]?.nodeName
+  if(dataPoint.rootNode) return doc.getRootNode()?.childNodes[0]?.nodeName.split('.')[0]
 
   const node = doc?.getElementsByTagName(dataPoint.nodeName!)[0]
   return (node && ( dataPoint.attribute ? node.getAttribute(dataPoint.attribute) : node.textContent ) || '')
 }
-
-// const getRootNodeName = (doc: Document) => {
-// }
 
 @Injectable()
 export class AppEffects {
@@ -120,6 +117,7 @@ export class AppEffects {
         let files_read = 0
         const total_files = files.length
         const start_time = Date.now()
+        console.time('sheet generation')
         const matched_filter_items = new Set()
         const readers = files.map(f =>
           fileReaderPromise(f as File).then(doc => {
@@ -147,6 +145,7 @@ export class AppEffects {
           rows = rows.filter(Boolean)
           rows.unshift(enabledDataPoints.map(dp => dp.displayName))
           this.store.dispatch(generateSheetStatus({message: 'Preparing Spreadsheet'}))
+          console.timeEnd('sheet generation')
           this.exportService.exportArrayToExcel(rows as string[][], 'export')
           // dispatch complete event
           this.store.dispatch(generateSheetStatus({message: 'Complete!'}))

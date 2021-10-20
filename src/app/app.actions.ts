@@ -4,8 +4,8 @@ import {DataPoint} from "./app.reducer";
 // export const noop = createAction('[app] NOOP');
 
 export const filesAdding = createAction('[app] Files Adding');
-export const filesAdded = createAction('[app] Files Added', props<{files: File[]}>());
-export const setEnabledFiles = createAction('[app] Set Enabled Files', props<{files: File[]}>());
+// @ts-ignore: FileSystemFileHandle is real, trust me
+export const filesAdded = createAction('[app] Files Added', props<{files: FileSystemFileHandle[]}>());
 export const dataPointsLoaded = createAction('[app] DataPoints Loaded', props<{dataPoints: DataPoint[]}>());
 export const addDataPointFromString = createAction('[app] Add DataPoint from String', props<{label: string}>());
 export const setEnabledDataPoints = createAction('[app] Set Enabled DataPoints', props<{dataPoints: DataPoint[]}>());

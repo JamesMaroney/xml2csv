@@ -19,9 +19,9 @@
     <h2>Step 1: Load Files</h2>
 
     <button (click)="selectFile()">Import XML files</button>
-    <input #fileInput type="file" accept="application/xml"
-           multiple directory webkitdirectory mozdirectory
-           (change)="filesSelected($event)" />
+<!--    <input #fileInput type="file" accept="application/xml"-->
+<!--           multiple directory webkitdirectory mozdirectory-->
+<!--           (change)="filesSelected($event)" />-->
 
     <ng-container *ngIf="(filesUploading$ | async)">
       <p>
@@ -36,7 +36,8 @@
       </span>
 
       <ul>
-        <li *ngFor="let file of (files$ | async); trackBy trackByFilename">{{file.name}}</li>
+        <li *ngFor="let file of files.slice(0, 100); trackBy trackByFilename">{{file.name}}</li>
+        <li *ngIf="files.length > 100">... and {{files.length - 100}} more</li>
       </ul>
     </ng-container>
   </section>
@@ -78,7 +79,7 @@
         <ng-container *ngIf="(filterValues$ | async) as filterValues">
           <span>{{filterValues?.size}} filters imported</span>
           <ul>
-            <li *ngFor="let filterValue of (filterValues$ | async)!.values(); trackBy trackByStringValue">{{filterValue}}</li>
+            <li *ngFor="let filterValue of setToArray(filterValues); trackBy trackByStringValue">{{filterValue}}</li>
           </ul>
         </ng-container>
       </ng-container>

@@ -4,7 +4,6 @@ import {Observable, of} from "rxjs";
 import {
   filesAdded,
   setEnabledDataPoints,
-  setEnabledFiles,
   setFilterBy,
   setFilterValues,
   generateSheet, filesAdding, addDataPointFromString
@@ -60,16 +59,32 @@ export class AppComponent {
     this.sheetGenerationReport$ = store.select(getSheetGenerationReport);
   }
 
-  public filesSelected(ev: Event){
-    const files = Array.from((ev.target as HTMLInputElement).files || []);
-    if ( !files ) return;
-    requestAnimationFrame(() => this.store.dispatch(filesAdded({files})));
+  public setToArray(s: Set<string>): string[] {
+    return Array.from(s.values())
   }
 
-  public selectFile(){
-    this.store.dispatch(filesAdding());
-    this.fileInput?.nativeElement.focus();
-    this.fileInput?.nativeElement.click();
+  public async selectFile(){
+    try {
+      // Prompt user for directory of XML files to load
+      // @ts-ignore
+      const dirHandle = await window.showDirectoryPicker();
+      // Show loading animation
+      this.store.dispatch(filesAdding());
+
+      console.time('file load')
+      // Convert async iterator of file handles to an array
+      // @ts-ignore FileSystemFileHandle is a thing, I prosmise
+      const files: FileSystemFileHandle[] = []
+      for await (const fileHandle of dirHandle.values()) {
+        // @ts-ignore
+        files.push(await fileHandle.getFile())
+      }
+      if ( !files.length ) return; //TODO: cancel Adding Files
+      console.timeEnd('file load')
+
+      requestAnimationFrame(() => this.store.dispatch(filesAdded({files})));
+
+    } catch(ex){}
   }
 
   public trackByFilename(i: number, file: File): string {
@@ -79,18 +94,6 @@ export class AppComponent {
   public trackByStringValue(i: number, val: string): string {
     return val;
   }
-
-  // public getFilename(file: File): string {
-  //   return file.name;
-  // }
-  //
-  // public isFileEnabled(file: File): boolean {
-  //   return true; //file.enabled;
-  // }
-  //
-  // public onChangeFileSelection(files: File[]){
-  //   this.store.dispatch(setEnabledFiles({ files }))
-  // }
 
   public trackByDataPoint(i: number, dp: DataPoint){
     return dp.id;
