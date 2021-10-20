@@ -127,7 +127,6 @@ export class AppEffects {
               const estimated_completion_time = new Date(start_time + ((elapsed_time * total_files) / files_read))
               const message = `Read ${files_read.toLocaleString()} of ${total_files.toLocaleString()} Files. ETA: ${estimated_completion_time.toLocaleTimeString()}`
               this.store.dispatch(generateSheetStatus({message}))
-              console.log(message)
             }
             const dps = enabledDataPoints.map(dp => getDataPointValue(doc, dp))
             if( !filterByDataPointId ) return dps
